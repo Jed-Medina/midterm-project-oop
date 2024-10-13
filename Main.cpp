@@ -137,6 +137,10 @@ class Inventory {
     public:
         vector<Item> getItems() {return items;}
 
+        void addItemForChecking(string id, string name, int quantity, double price, string category) {
+            items.push_back(Item{id, name, quantity, price, category});
+        }
+
         bool checkItemID(string pID) {
             for (int i = 0; i < items.size(); i++) {
                 if (items.at(i).getID() == pID) {
@@ -355,36 +359,106 @@ class Inventory {
         }
 
         void sortAscending(bool checkPrice) {
-            for (size_t i = 0; i < items.size(); ++i) {
-                for (size_t j = i + 1; j < items.size(); ++j) {
-                    if (checkPrice && items[i].getPrice() > items[j].getPrice()) {
-                        swap(items[i], items[j]);
-                    } else if (!checkPrice && items[i].getQuantity() << items[j].getQuantity()) {
-                        swap(items[i], items[j]);
+            for (int i = 0; i < items.size() - 1; i++) {
+                for (int j = 0; j < items.size() - i - 1; j++) {
+                    if (checkPrice && items[j].getPrice() > items[j + 1].getPrice()) {
+                        swap(items[j], items[j + 1]);
+                    } else if (!checkPrice && items[j].getQuantity() > items[j + 1].getQuantity()) {
+                        swap(items[j], items[j + 1]);
                     }
                 }
             }
         }
 
         void sortDescending(bool checkPrice) {
-            for (size_t i = 0; i < items.size(); ++i) {
-                for (size_t j = i + 1; j < items.size(); ++j) {
-                    if (checkPrice && items[i].getPrice() < items[j].getPrice()) {
-                        swap(items[i], items[j]);
-                    } else if (!checkPrice && items[i].getQuantity() << items[j].getQuantity()) {
-                        swap(items[i], items[j]);
+            for (int i = 0; i < items.size() - 1; i++) {
+                for (int j = 0; j < items.size() - i - 1; j++) {
+                    if (checkPrice && items[j].getPrice() < items[j + 1].getPrice()) {
+                        swap(items[j], items[j + 1]);
+                    } else if (!checkPrice && items[j].getQuantity() < items[j + 1].getQuantity()) {
+                        swap(items[j], items[j + 1]);
                     }
                 }
             }
         }
 
+        void displaySortedItems() {
+            system("cls");
+                bool restart;
+                int sortChoice;
+                int typeChoice;
+                do {
+                    restart = false;
+                    system("cls");
+                    cout << "1 - Quantity\n"
+                        << "2 - Price\n"
+                        << "Choose What To Sort By [1-2]: ";
+                    cin >> typeChoice;
+
+                    if (checkValidity(&restart)) continue;
+                    cin.ignore();
+
+                    if (typeChoice != 1 && typeChoice != 2) {
+                        system("cls");
+                        cout << "Invalid Input! Please Choose From The Options!\n";
+                        system("pause");
+                        restart = true;
+                    }
+
+                } while (restart);
+
+                system("cls");
+                do {
+                    restart = false;
+                    int sortChoice;
+                    system("cls");
+                    cout << "1 - Ascending\n"
+                        << "2 - Descending\n"
+                        << "Choose How Items Should Be Sorted [1-2]: ";
+                    cin >> sortChoice;
+
+                    if (checkValidity(&restart)) continue;
+                    cin.ignore();
+
+                    switch (sortChoice) {
+                        case 1:
+                            sortAscending(typeChoice-1);
+                            break;
+                        case 2:
+                            sortDescending(typeChoice-1);
+                            break;
+                        default:
+                            system("cls");
+                            cout << "Invalid Input! Please Choose From The Options!\n";
+                            system("pause");
+                            restart = true;
+                            break;
+                    }
+                    
+                } while (restart);
+                displayItems();
+        }
+
         void displayLowStockItems() {
-            
+            system("cls");
+            cout << "Entertainment Items:\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            for (int i = 0; i < items.size(); i++) {
+                if (items.at(i).getQuantity() > 5) continue;
+                items.at(i).display(i+1);
+            }
+            cout << "|____________________|____________________|____________________|____________________|\n";
+            system("pause");
         }
 };
 
 int main() {
     Inventory inventory;
+    inventory.addItemForChecking("1", "hello", 9, 10, "clothing");
+    inventory.addItemForChecking("2", "hi", 5, 20, "clothing");
+    inventory.addItemForChecking("3", "ayo", 2, 30, "clothing");
+    inventory.addItemForChecking("4", "konichiwa", 20, 40, "electronics");
+    inventory.addItemForChecking("5", "lmao", 99, 1, "entertainmennt");
     bool restart;
     do {
         restart = true;
@@ -432,8 +506,7 @@ int main() {
                 break;
             }
             case 7:
-                inventory.sortAscending();
-                inventory.displayItems();
+                inventory.displaySortedItems();
                 break;
             case 8:
                 inventory.displayLowStockItems();
@@ -446,7 +519,7 @@ int main() {
                 break;
             default:
                 system("cls");
-                cout << "Invalid Input! Please Choose From The Options hi!\n";
+                cout << "Invalid Input! Please Choose From The Options!\n";
                 system("pause");
                 break;
         }
