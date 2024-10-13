@@ -71,8 +71,6 @@ class Category {
 };
 
 class ClothingCategory : public Category {
-    private:
-
     public:
         ClothingCategory() : Category("clothing") {}
 
@@ -95,8 +93,6 @@ class ClothingCategory : public Category {
 };
 
 class ElectronicsCategory : public Category {
-    private:
-
     public:
         ElectronicsCategory() : Category("electronics") {}
 
@@ -119,8 +115,6 @@ class ElectronicsCategory : public Category {
 };
 
 class EntertainmentCategory : public Category {
-    private:
-
     public:
         EntertainmentCategory() : Category("entertainment") {}
 
