@@ -54,7 +54,8 @@ class Item {
             cout << "|" << index << ". " << setw(17) << left << getID() << "|"
             << setw(20) << left << getName() << "|"
             << setw(20) << left << getQuantity() << "|"
-            << setw(20) << left << getPrice() << "|\n";
+            << setw(20) << left << getPrice() << "|"
+            << setw(20) << left << getCategory() << "|\n";
         }
 };
 
@@ -78,13 +79,18 @@ class ClothingCategory : public Category {
 
         void displayCategoryItems(vector<Item> pItems) override {
             system("cls");
+            bool isEmpty = true;
             cout << "Clothing Items:\n";
-            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
             for (int i = 0; i < pItems.size(); i++) {
                 if (pItems.at(i).getCategory() != getCategoryName()) continue;
                 pItems.at(i).display(i+1);
+                isEmpty = false;
             }
-            cout << "|____________________|____________________|____________________|____________________|\n";
+            if (isEmpty) {
+                cout << "| " << setw(103) << left << "EMPTY! NO ITEMS IN CLOTHING CATEGORY!" << "|\n";
+            }
+            cout << "|____________________|____________________|____________________|____________________|____________________|\n";
             system("pause");
         }
 };
@@ -97,13 +103,18 @@ class ElectronicsCategory : public Category {
 
         void displayCategoryItems(vector<Item> pItems) override {
             system("cls");
+            bool isEmpty = true;
             cout << "Electronic Items:\n";
-            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
             for (int i = 0; i < pItems.size(); i++) {
                 if (pItems.at(i).getCategory() != getCategoryName()) continue;
                 pItems.at(i).display(i+1);
+                isEmpty = false;
             }
-            cout << "|____________________|____________________|____________________|____________________|\n";
+            if (isEmpty) {
+                cout << "| " << setw(103) << left << "EMPTY! NO ITEMS IN ELECTRONICS CATEGORY!" << "|\n";
+            }
+            cout << "|____________________|____________________|____________________|____________________|____________________|\n";
             system("pause");
         }
 };
@@ -116,13 +127,18 @@ class EntertainmentCategory : public Category {
 
         void displayCategoryItems(vector<Item> pItems) override {
             system("cls");
+            bool isEmpty = true;
             cout << "Entertainment Items:\n";
-            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
             for (int i = 0; i < pItems.size(); i++) {
                 if (pItems.at(i).getCategory() != getCategoryName()) continue;
                 pItems.at(i).display(i+1);
+                isEmpty = false;
             }
-            cout << "|____________________|____________________|____________________|____________________|\n";
+            if (isEmpty) {
+                cout << "| " << setw(103) << left << "EMPTY! NO ITEMS IN ENTERTAINMENT CATEGORY!" << "|\n";
+            }
+            cout << "|____________________|____________________|____________________|____________________|____________________|\n";
             system("pause");
         }
 };
@@ -135,15 +151,9 @@ class Inventory {
         vector<Item> items;
 
     public:
-        vector<Item> getItems() {return items;}
-
-        void addItemForChecking(string id, string name, int quantity, double price, string category) {
-            items.push_back(Item{id, name, quantity, price, category});
-        }
-
         bool checkItemID(string pID) {
             for (int i = 0; i < items.size(); i++) {
-                if (items.at(i).getID() == pID) {
+                if (makeWordLower(items.at(i).getID()) == makeWordLower(pID)) {
                     system("cls");
                     cout << "Invalid Input! ID Already Exists! ID Must Be Unique!\n";
                     system("pause");
@@ -310,11 +320,14 @@ class Inventory {
         void displayItems() {
             system("cls");
             cout << "All Items:\n";
-            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
             for (int i = 0; i < items.size(); i++) {
                 items.at(i).display(i+1);
             }
-            cout << "|____________________|____________________|____________________|____________________|\n";
+            if (items.size() <= 0) {
+                cout << "| " << setw(103) << left << "EMPTY! NO ITEMS!" << "|\n";
+            }
+            cout << "|____________________|____________________|____________________|____________________|____________________|\n";
             system("pause");
         }
 
@@ -384,81 +397,84 @@ class Inventory {
 
         void displaySortedItems() {
             system("cls");
-                bool restart;
-                int sortChoice;
-                int typeChoice;
-                do {
-                    restart = false;
+            if (items.size() <= 0) {
+                cout << "There Are No Items In Inventory To Sort!\n";
+                system("pause");
+                return;
+            }
+            bool restart;
+            int sortChoice;
+            int typeChoice;
+            do {
+                restart = false;
+                system("cls");
+                cout << "1 - Quantity\n"
+                    << "2 - Price\n"
+                    << "Choose What To Sort By [1-2]: ";
+                cin >> typeChoice;
+
+                if (checkValidity(&restart)) continue;
+                cin.ignore();
+
+                if (typeChoice != 1 && typeChoice != 2) {
                     system("cls");
-                    cout << "1 - Quantity\n"
-                        << "2 - Price\n"
-                        << "Choose What To Sort By [1-2]: ";
-                    cin >> typeChoice;
+                    cout << "Invalid Input! Please Choose From The Options!\n";
+                    system("pause");
+                    restart = true;
+                }
 
-                    if (checkValidity(&restart)) continue;
-                    cin.ignore();
+            } while (restart);
 
-                    if (typeChoice != 1 && typeChoice != 2) {
+            system("cls");
+            do {
+                restart = false;
+                int sortChoice;
+                system("cls");
+                cout << "1 - Ascending\n"
+                    << "2 - Descending\n"
+                    << "Choose How Items Should Be Sorted [1-2]: ";
+                cin >> sortChoice;
+
+                if (checkValidity(&restart)) continue;
+                cin.ignore();
+
+                switch (sortChoice) {
+                    case 1:
+                        sortAscending(typeChoice-1);
+                        break;
+                    case 2:
+                        sortDescending(typeChoice-1);
+                        break;
+                    default:
                         system("cls");
                         cout << "Invalid Input! Please Choose From The Options!\n";
                         system("pause");
                         restart = true;
-                    }
-
-                } while (restart);
-
-                system("cls");
-                do {
-                    restart = false;
-                    int sortChoice;
-                    system("cls");
-                    cout << "1 - Ascending\n"
-                        << "2 - Descending\n"
-                        << "Choose How Items Should Be Sorted [1-2]: ";
-                    cin >> sortChoice;
-
-                    if (checkValidity(&restart)) continue;
-                    cin.ignore();
-
-                    switch (sortChoice) {
-                        case 1:
-                            sortAscending(typeChoice-1);
-                            break;
-                        case 2:
-                            sortDescending(typeChoice-1);
-                            break;
-                        default:
-                            system("cls");
-                            cout << "Invalid Input! Please Choose From The Options!\n";
-                            system("pause");
-                            restart = true;
-                            break;
-                    }
-                    
-                } while (restart);
-                displayItems();
+                        break;
+                }
+                
+            } while (restart);
+            displayItems();
         }
 
         void displayLowStockItems() {
             system("cls");
             cout << "Entertainment Items:\n";
-            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+            cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
             for (int i = 0; i < items.size(); i++) {
                 if (items.at(i).getQuantity() > 5) continue;
                 items.at(i).display(i+1);
             }
-            cout << "|____________________|____________________|____________________|____________________|\n";
+            if (items.size() <= 0) {
+                cout << "| " << setw(103) << left << "EMPTY! NO ITEMS!" << "|\n";
+            }
+            cout << "|____________________|____________________|____________________|____________________|____________________|\n";
             system("pause");
         }
 };
 
 int main() {
     Inventory inventory;
-    inventory.addItemForChecking("1", "hello", 9, 10, "clothing");
-    inventory.addItemForChecking("2", "hi", 5, 20, "clothing");
-    inventory.addItemForChecking("3", "ayo", 2, 30, "clothing");
-    inventory.addItemForChecking("4", "konichiwa", 20, 40, "electronics");
-    inventory.addItemForChecking("5", "lmao", 99, 1, "entertainmennt");
     bool restart;
     do {
         restart = true;
@@ -499,9 +515,9 @@ int main() {
                 system("cls");
                 Item* item = inventory.searchItem();
                 if (item == nullptr) break;
-                cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________\n";
+                cout << "__ID___________________NAME_________________QUANTITY_____________PRICE_______________CATEGORY____________\n";
                 item->display(1);
-                cout << "|____________________|____________________|____________________|____________________|\n";
+                cout << "|____________________|____________________|____________________|____________________|____________________|\n";
                 system("pause");
                 break;
             }
